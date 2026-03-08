@@ -1,18 +1,7 @@
 import type { Request, Response, NextFunction } from "express"
-import ApiResponse from "./apiResponse"
-import ApiError from "./apiError"
 
-export default function asyncHandler(fn: (req: Request, res: Response, next?: NextFunction) => void) {
+export default function asyncHandler(fn: (req: Request, res: Response, next?: NextFunction) => Promise<void>) {
   return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await fn(req, res, next)
-    } catch (err) {
-      if (err instanceof ApiError) {
-        res
-          .status(err.statusCode)
-          .json(new ApiResponse(err.statusCode, err.message, null))
-      }
-
-    }
+    fn(req, res, next).catch(next)
   }
-} 
+}
